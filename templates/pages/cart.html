@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Shopping Cart &mdash; Shake &amp; Burp{% endblock %}
+{% block extra_css %}
+<style>
+  .cart-wrap{padding:120px 0 80px}
+  .cart-h{font-family:var(--ff-d);font-size:clamp(32px,5vw,52px);font-weight:700;color:var(--white);margin:12px 0 36px}
+  .cart-grid{display:grid;grid-template-columns:2fr 1fr;gap:40px;align-items:start}
+  @media(max-width:960px){.cart-grid{grid-template-columns:1fr;gap:36px}}
+
+  /* Cart List */
+  .cart-list{display:flex;flex-direction:column;gap:18px}
+  .cart-item{display:flex;align-items:center;justify-content:space-between;padding:24px;border-radius:20px;background:rgba(15,15,16,0.45);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.06);gap:20px;flex-wrap:wrap}
+  .item-left{display:flex;align-items:center;gap:20px;min-width:0}
+  .item-img{width:60px;height:90px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .item-bottle{width:28px}
+  .item-name{font-family:var(--ff-d);font-size:18px;font-weight:700;color:var(--white);margin-bottom:4px}
+  .item-meta{font-size:12px;color:var(--steel)}
+
+  .item-right{display:flex;align-items:center;gap:24px;margin-left:auto}
+  @media(max-width:600px){.item-right{margin-left:0;width:100%;justify-content:space-between;margin-top:12px}}
+
+  /* Qty update inline form */
+  .qty-form{display:flex;align-items:center;gap:8px}
+  .qty-field{width:60px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--white);font-family:var(--ff-m);font-size:13px;text-align:center;outline:none;transition:border-color 0.3s}
+  .qty-field:focus{border-color:var(--border-r)}
+  .qty-upd{background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--steel);border-radius:8px;padding:6px 10px;font-family:var(--ff-m);font-size:10px;cursor:pointer;transition:all 0.25s;white-space:nowrap}
+  .qty-upd:hover{color:var(--white);border-color:rgba(255,255,255,0.2)}
+
+  .item-total{font-family:var(--ff-m);font-size:18px;font-weight:700;color:var(--white);width:72px;text-align:right}
+  .item-remove-form button{color:var(--red);font-size:20px;background:none;border:none;cursor:pointer;transition:transform 0.2s,opacity 0.2s;line-height:1;padding:4px}
+  .item-remove-form button:hover{transform:scale(1.2);opacity:0.8}
+
+  /* Summary Card */
+  .summary-card{padding:30px;border-radius:24px;background:rgba(15,15,16,0.45);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.06);position:sticky;top:90px}
+  .summary-title{font-family:var(--ff-d);font-size:22px;font-weight:700;color:var(--white);margin-bottom:20px}
+  .summary-row{display:flex;justify-content:space-between;font-size:14px;color:var(--steel);margin-bottom:14px}
+  .summary-total{display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:18px;margin-top:18px;color:var(--white);font-family:var(--ff-m);font-size:18px;font-weight:700}
+  .checkout-btn{width:100%;justify-content:center;margin-top:24px;padding:16px;font-size:12px}
+  .clear-form{margin-top:12px;text-align:left}
+  .clear-btn{font-family:var(--ff-m);font-size:11px;color:var(--steel);text-transform:uppercase;letter-spacing:0.08em;background:none;border:none;cursor:pointer;transition:color 0.2s;padding:0}
+  .clear-btn:hover{color:var(--red)}
+
+  /* Empty State */
+  .empty-state{text-align:center;padding:80px 24px;border-radius:28px;background:rgba(15,15,16,0.3);backdrop-filter:blur(10px);border:1px solid var(--border)}
+  .empty-h{font-family:var(--ff-d);font-size:28px;font-weight:700;color:var(--white);margin-bottom:12px}
+  .empty-p{font-size:14px;color:var(--steel);margin-bottom:32px}
+
+  /* Auth notice */
+  .auth-notice{display:flex;align-items:center;gap:12px;padding:14px 20px;background:rgba(209,0,0,0.08);border:1px solid rgba(209,0,0,0.2);border-radius:14px;margin-bottom:28px;font-size:13px;color:var(--steel)}
+  .auth-notice a{color:var(--red);font-weight:600}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+  <div class="ctn">
+    <div class="cart-wrap">
+      <p class="t-label">// Checkout Portal</p>
+      <h1 class="cart-h">Shopping Cart</h1>
+
+      {% if not request.user.is_authenticated and cart_items %}
+      <div class="auth-notice">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span><a href="/login/?next=/cart/">Sign in</a> or <a href="/register/">create an account</a> to save your cart and complete checkout.</span>
+      </div>
+      {% endif %}
+
+      {% if cart_items %}
+      <div class="cart-grid">
+        <!-- List -->
+        <div class="cart-list">
+          {% for item in cart_items %}
+          <div class="cart-item">
+            <div class="item-left">
+              <div class="item-img">
+                <svg class="item-bottle" viewBox="0 0 90 200" fill="none">
+                  {{ item.svg|safe }}
+                </svg>
+              </div>
+              <div>
+                <div class="item-name">{{ item.name }}</div>
+                <div class="item-meta">Unit Price: ${{ item.price }}</div>
+              </div>
+            </div>
+
+            <div class="item-right">
+              <!-- Quantity update form -->
+              <form class="qty-form" action="/cart/update/{{ item.slug }}/" method="POST">
+                {% csrf_token %}
+                <input type="number" name="qty" class="qty-field" value="{{ item.qty }}" min="1" max="99">
+                <button type="submit" class="qty-upd">Update</button>
+              </form>
+
+              <div class="item-total">${{ item.total }}</div>
+
+              <!-- CSRF-safe remove button -->
+              <form class="item-remove-form" action="/cart/remove/{{ item.slug }}/" method="POST" style="margin:0">
+                {% csrf_token %}
+                <button type="submit" title="Remove Item">&times;</button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+
+          <!-- Clear all — POST form, never a plain GET link -->
+          <div class="clear-form">
+            <form action="/cart/clear/" method="POST" onsubmit="return confirm('Clear all items from cart?')">
+              {% csrf_token %}
+              <button type="submit" class="clear-btn">Clear All Items</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="summary-card">
+          <div class="summary-title">Order Summary</div>
+          <div class="summary-row"><span>Subtotal ({{ cart_count }} item{{ cart_count|pluralize }})</span><span>${{ subtotal }}</span></div>
+          <div class="summary-row"><span>Shipping</span><span style="color:#22c55e;font-weight:600">FREE</span></div>
+          <div class="summary-row"><span>Tax (est.)</span><span style="color:var(--steel)">Calculated at checkout</span></div>
+          <div class="summary-total"><span>Total</span><span>${{ subtotal }}</span></div>
+          {% if request.user.is_authenticated %}
+          <button class="btn btn-p checkout-btn" onclick="alert('Stripe / Razorpay checkout integration — Phase 2!')">
+            Proceed to Checkout
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+          {% else %}
+          <a href="/login/?next=/cart/" class="btn btn-p checkout-btn" style="display:flex">
+            Sign In to Checkout
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </a>
+          {% endif %}
+        </div>
+      </div>
+      {% else %}
+      <!-- Empty state -->
+      <div class="empty-state">
+        <h2 class="empty-h">Your Cart is Empty</h2>
+        <p class="empty-p">You haven&rsquo;t added any precision shakers yet.</p>
+        <a href="/catalog/" class="btn btn-p" style="padding:14px 32px">Explore Collection</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block page_shader %}
+<script>
+ReactBackgrounds.renderLightRays("react-bg", {
+  raysOrigin: "top-center",
+  raysColor: "#dd0000",
+  raysSpeed: 2.4,
+  lightSpread: 2.1,
+  rayLength: 3.3,
+  pulsating: false,
+  fadeDistance: 0.9,
+  saturation: 1.5,
+  followMouse: true,
+  mouseInfluence: 0.25,
+  noiseAmount: 0.0,
+  distortion: 0.0
+});
+</script>
+{% endblock %}

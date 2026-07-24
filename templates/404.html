@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}404 &mdash; Page Not Found{% endblock %}
+
+{% block extra_css %}
+<style>
+  .err-wrap {
+    min-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 24px;
+  }
+  .err-title-container {
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .err-sub {
+    font-size: 16px;
+    color: var(--steel);
+    margin-bottom: 36px;
+    max-width: 440px;
+    line-height: 1.7;
+  }
+  .err-btn {
+    padding: 14px 32px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+  <div class="ctn">
+    <div class="err-wrap">
+      <div class="err-title-container">
+        <div id="fuzzy-404"></div>
+        <div id="fuzzy-not-found" style="margin-top: 10px;"></div>
+      </div>
+      <p class="err-sub">The page you are looking for has been moved, renamed, or is temporarily unavailable.</p>
+      <a href="/" class="btn btn-p err-btn">Go To Home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block page_shader %}
+<script>
+// Fuzzy Text 404
+ReactBackgrounds.renderFuzzyText("fuzzy-404", {
+  children: "404",
+  color: "#D10000",
+  fontSize: "clamp(4rem, 12vw, 8rem)",
+  fontWeight: 900,
+  enableHover: true,
+  baseIntensity: 0.2,
+  hoverIntensity: 0.77,
+  fuzzRange: 30
+});
+
+// Fuzzy Text "not found"
+ReactBackgrounds.renderFuzzyText("fuzzy-not-found", {
+  children: "not found",
+  color: "#D10000",
+  fontSize: "clamp(1.5rem, 5vw, 3rem)",
+  fontWeight: 700,
+  enableHover: true,
+  baseIntensity: 0.2,
+  hoverIntensity: 0.77,
+  fuzzRange: 15
+});
+
+// Red Dither Background
+ReactBackgrounds.renderDither("react-bg", {
+  waveColor: [0.5137254901960784, 0.0, 0.0],
+  disableAnimation: false,
+  enableMouseInteraction: true,
+  mouseRadius: 0.8,
+  colorNum: 6,
+  pixelSize: 1,
+  waveAmplitude: 0.4,
+  waveFrequency: 3,
+  waveSpeed: 0.45
+});
+</script>
+{% endblock %}

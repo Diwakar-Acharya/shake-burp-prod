@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block title %}Shake &amp; Burp &mdash; Cold. Cohesive. Premium.{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Hero ── */
+  .hero{min-height:92vh;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;text-align:left;padding:120px 48px 60px;max-width:1200px;margin:0 auto}
+  @media(max-width:768px){.hero{padding:100px 24px 60px}}
+  .hero-inner{transform:rotate(-3deg) skewX(-4deg);transform-origin:left center}
+  .hero-eye{display:inline-flex;align-items:center;gap:10px;padding:8px 18px;border-radius:999px;border:1px solid rgba(255,255,255,0.06);background:rgba(15,15,16,0.45);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-family:var(--ff-m);font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--steel);margin-bottom:30px}
+  .hero-h{font-size:clamp(56px,8.5vw,110px);margin-bottom:24px;line-height:0.95}
+  .hero-h p{display:inline-flex !important;font-family:inherit !important;font-size:inherit !important;font-weight:inherit !important;letter-spacing:inherit !important;line-height:inherit !important;margin:0 !important}
+  .hero-p{font-size:clamp(15px,1.8vw,17px);max-width:620px;margin:0 0 36px;font-weight:300;line-height:1.7;color:var(--steel)}
+  .hero-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:flex-start}
+
+  /* ── Marquee ── */
+  .marq{padding:28px 0;background:transparent;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);overflow:hidden;white-space:nowrap}
+  @keyframes marq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+  .marq-t{display:inline-flex;animation:marq 20s linear infinite}
+  .marq-i{font-family:var(--ff-m);font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--steel);padding:0 44px;display:inline-flex;align-items:center;gap:20px}
+  .marq-i::after{content:'•';color:var(--red);font-size:18px}
+
+  /* ── Shaker Showcase ── */
+  .showcase{padding:120px 0 80px}
+  .showcase-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:72px;flex-wrap:wrap;gap:24px}
+  .showcase-title{font-size:clamp(36px,5.5vw,64px);color:var(--white);line-height:1;font-family:var(--ff-d);font-weight:700;letter-spacing:-0.03em}
+  .showcase-title span{color:var(--red)}
+  .showcase-sub{font-size:14px;color:var(--steel);max-width:320px;line-height:1.7}
+
+  /* Three-column shaker cards */
+  .shaker-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative}
+  @media(max-width:900px){.shaker-grid{grid-template-columns:1fr}}
+
+  .shaker-card{position:relative;display:flex;flex-direction:column;align-items:center;padding:48px 32px 40px;cursor:pointer;border-right:1px solid rgba(255,255,255,0.06);transition:background 0.4s}
+  .shaker-card:last-child{border-right:none}
+  @media(max-width:900px){.shaker-card{border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);padding:48px 24px}}
+  .shaker-card:hover{background:rgba(209,0,0,0.04)}
+  .shaker-card::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(209,0,0,0.06) 0%,transparent 50%);opacity:0;transition:opacity 0.4s;pointer-events:none}
+  .shaker-card:hover::before{opacity:1}
+
+  /* Index number */
+  .shaker-num{font-family:var(--ff-m);font-size:10px;letter-spacing:0.2em;color:rgba(255,255,255,0.2);text-transform:uppercase;margin-bottom:40px;align-self:flex-start}
+
+  /* The bottle SVG stage */
+  .bottle-stage{position:relative;width:140px;height:320px;flex-shrink:0;margin-bottom:40px}
+  .bottle-glow{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);width:100px;height:40px;border-radius:50%;filter:blur(24px);opacity:0;transition:opacity 0.5s}
+  .shaker-card:hover .bottle-glow{opacity:0.7}
+  .bottle-svg{width:100%;height:100%;transition:transform 0.6s cubic-bezier(0.16,1,0.3,1),filter 0.5s}
+  .shaker-card:hover .bottle-svg{transform:translateY(-14px) scale(1.04)}
+
+  /* Card text */
+  .shaker-info{width:100%;border-top:1px solid rgba(255,255,255,0.07);padding-top:24px}
+  .shaker-badge{font-family:var(--ff-m);font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;padding:4px 10px;border-radius:999px;display:inline-block;margin-bottom:12px}
+  .badge-r{background:rgba(209,0,0,0.2);color:var(--red);border:1px solid rgba(209,0,0,0.35)}
+  .badge-w{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.12)}
+  .shaker-name{font-family:var(--ff-d);font-size:22px;font-weight:700;color:var(--white);margin-bottom:8px;line-height:1.1}
+  .shaker-price{font-family:var(--ff-m);font-size:18px;font-weight:700;color:var(--white);margin-bottom:14px}
+  .shaker-desc{font-size:12px;color:var(--steel);line-height:1.65;margin-bottom:24px}
+  .shaker-specs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+  .shaker-spec{font-family:var(--ff-m);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--steel);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:4px 10px}
+  .shaker-cta{display:flex;justify-content:space-between;align-items:center}
+  .shaker-link{font-family:var(--ff-m);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--red);display:flex;align-items:center;gap:6px;transition:gap 0.3s}
+  .shaker-card:hover .shaker-link{gap:10px}
+  .shaker-link svg{width:12px;height:12px;transition:transform 0.3s}
+  .shaker-card:hover .shaker-link svg{transform:translateX(3px)}
+
+  /* Reveal */
+  .rv{opacity:0;transform:translateY(28px);transition:opacity 0.8s var(--ease),transform 0.8s var(--ease)}
+  .rv.show{opacity:1;transform:translateY(0)}
+  @media(max-width:768px){.bottle-stage{width:110px;height:250px}}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-eye rv">
+      <div class="dot"></div>
+      <span>Phase 1 System Active &bull; Platform Online</span>
+    </div>
+    <h1 class="t-d hero-h">
+      <div id="blur-text-1" style="display:inline-block;margin-left:0;"></div><br>
+      <div id="blur-text-2" style="display:inline-block;margin-left:6vw;"></div><br>
+      <div id="blur-text-3" style="display:inline-block;margin-left:12vw;color:var(--red);filter:drop-shadow(0 0 40px rgba(209,0,0,0.6));"></div>
+    </h1>
+    <p class="hero-p rv" style="margin-left:6vw;">The world&rsquo;s first custom UV&nbsp;DTF insulated shaker bottle platform. Engineered for zero leaks, 36-hour chill retention, and bespoke high-friction tactical artwork.</p>
+    <div class="hero-btns rv" style="margin-left:6vw;">
+      <a href="/catalog/" class="btn btn-p" style="box-shadow:0 0 25px rgba(209,0,0,0.45)">Explore Catalog<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg></a>
+      <a href="/login/" class="btn btn-g">Sign In</a>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marq">
+  <div class="marq-t">
+    <span class="marq-i">UV DTF Printing</span><span class="marq-i">Zero Leak Burp Valve</span><span class="marq-i">36-Hour Insulation</span><span class="marq-i">316L Surgical Steel</span><span class="marq-i">Custom Artwork Upload</span><span class="marq-i">Dishwasher Safe 70&deg;C</span><span class="marq-i">Bulk Corporate Orders</span><span class="marq-i">Scratch-Proof Bonding</span>
+    <span class="marq-i">UV DTF Printing</span><span class="marq-i">Zero Leak Burp Valve</span><span class="marq-i">36-Hour Insulation</span><span class="marq-i">316L Surgical Steel</span><span class="marq-i">Custom Artwork Upload</span><span class="marq-i">Dishwasher Safe 70&deg;C</span><span class="marq-i">Bulk Corporate Orders</span><span class="marq-i">Scratch-Proof Bonding</span>
+  </div>
+</div>
+
+<!-- SHAKER SHOWCASE -->
+<section class="showcase">
+  <div class="ctn">
+    <div class="showcase-header rv">
+      <div>
+        <p class="t-label" style="margin-bottom:16px">// The Shaker Collection</p>
+        <h2 class="showcase-title">Precision<br><span>Shakers</span></h2>
+      </div>
+      <p class="showcase-sub">Each vessel is dual-wall vacuum insulated with a custom burp-release pressure cap and UV-hardened surface coating.</p>
+    </div>
+
+    <div class="shaker-grid">
+      {% for p in products %}
+      <div class="shaker-card rv" {% if forloop.counter == 2 %}style="transition-delay:0.12s"{% elif forloop.counter == 3 %}style="transition-delay:0.24s"{% endif %}>
+        <div class="shaker-num">0{{ forloop.counter }} / 03</div>
+        <div class="bottle-stage">
+          {% if p.image %}
+            <div class="bottle-glow" style="background:{{ p.color }};width:120px;height:50px"></div>
+            <img class="bottle-svg" src="{{ p.image.url }}" alt="{{ p.name }}" style="width:100%;height:100%;object-fit:cover;border-radius:16px;border:1px solid rgba(255,255,255,0.08)">
+          {% else %}
+            {% if p.slug == 'stealth-titanium' %}
+              <div class="bottle-glow" style="background:#888;width:120px;height:50px"></div>
+              <svg class="bottle-svg" viewBox="0 0 120 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="42" y="0" width="36" height="10" rx="4" fill="#1C1C1E" stroke="rgba(255,255,255,0.12)" stroke-width="0.8"/>
+                <rect x="38" y="10" width="44" height="20" rx="6" fill="#232325" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/>
+                <path d="M32 30 Q28 50 22 68 L22 280 Q22 300 40 306 L80 306 Q98 300 98 280 L98 68 Q92 50 88 30 Z" fill="#1A1A1C" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/>
+                <rect x="26" y="80" width="68" height="200" rx="8" fill="url(#stealth-grad)"/>
+                <rect x="26" y="80" width="8" height="200" rx="4" fill="rgba(255,255,255,0.04)"/>
+                <rect x="32" y="130" width="56" height="100" rx="6" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/>
+                <text x="60" y="182" text-anchor="middle" font-family="monospace" font-weight="900" font-size="9" letter-spacing="3" fill="rgba(255,255,255,0.18)">STEALTH</text>
+                <text x="60" y="196" text-anchor="middle" font-family="monospace" font-size="6" letter-spacing="4" fill="rgba(255,255,255,0.1)">TITANIUM</text>
+                <line x1="28" y1="200" x2="36" y2="200" stroke="rgba(255,255,255,0.12)" stroke-width="0.6"/>
+                <line x1="28" y1="230" x2="36" y2="230" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/>
+                <rect x="26" y="296" width="68" height="10" rx="5" fill="#111113" stroke="rgba(255,255,255,0.06)" stroke-width="0.6"/>
+                <circle cx="60" cy="5" r="2" fill="rgba(255,255,255,0.2)"/>
+                <defs>
+                  <linearGradient id="stealth-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#1A1A1C"/>
+                    <stop offset="30%" stop-color="#252527"/>
+                    <stop offset="60%" stop-color="#1E1E20"/>
+                    <stop offset="100%" stop-color="#141416"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            {% elif p.slug == 'crimson-kinetic' %}
+              <div class="bottle-glow" style="background:#D10000;width:130px;height:55px"></div>
+              <svg class="bottle-svg" viewBox="0 0 120 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="42" y="0" width="36" height="10" rx="4" fill="#3A0000" stroke="rgba(209,0,0,0.4)" stroke-width="0.8"/>
+                <rect x="38" y="10" width="44" height="20" rx="6" fill="#2D0000" stroke="rgba(209,0,0,0.3)" stroke-width="0.8"/>
+                <path d="M32 30 Q28 50 22 68 L22 280 Q22 300 40 306 L80 306 Q98 300 98 280 L98 68 Q92 50 88 30 Z" fill="#1C0000" stroke="rgba(209,0,0,0.15)" stroke-width="0.8"/>
+                <rect x="26" y="80" width="68" height="200" rx="8" fill="url(#crimson-grad)"/>
+                <rect x="26" y="80" width="8" height="200" rx="4" fill="rgba(255,100,100,0.06)"/>
+                <rect x="32" y="130" width="56" height="100" rx="6" fill="rgba(209,0,0,0.18)" stroke="rgba(209,0,0,0.3)" stroke-width="0.6"/>
+                <rect x="40" y="150" width="40" height="60" rx="4" fill="rgba(209,0,0,0.12)"/>
+                <text x="60" y="182" text-anchor="middle" font-family="monospace" font-weight="900" font-size="9" letter-spacing="2" fill="rgba(255,80,80,0.7)">CRIMSON</text>
+                <text x="60" y="196" text-anchor="middle" font-family="monospace" font-size="6" letter-spacing="3" fill="rgba(255,80,80,0.4)">KINETIC</text>
+                <line x1="26" y1="100" x2="26" y2="270" stroke="rgba(209,0,0,0.5)" stroke-width="1.5"/>
+                <line x1="94" y1="100" x2="94" y2="270" stroke="rgba(209,0,0,0.3)" stroke-width="0.8"/>
+                <line x1="28" y1="200" x2="36" y2="200" stroke="rgba(255,80,80,0.3)" stroke-width="0.6"/>
+                <line x1="28" y1="230" x2="36" y2="230" stroke="rgba(255,80,80,0.2)" stroke-width="0.6"/>
+                <rect x="26" y="296" width="68" height="10" rx="5" fill="#1A0000" stroke="rgba(209,0,0,0.2)" stroke-width="0.6"/>
+                <circle cx="60" cy="5" r="2" fill="rgba(209,0,0,0.6)"/>
+                <defs>
+                  <linearGradient id="crimson-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#1C0000"/>
+                    <stop offset="35%" stop-color="#280000"/>
+                    <stop offset="65%" stop-color="#1E0000"/>
+                    <stop offset="100%" stop-color="#150000"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            {% else %}
+              <div class="bottle-glow" style="background:#0055ff;width:120px;height:50px"></div>
+              <svg class="bottle-svg" viewBox="0 0 120 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="36" y="0" width="48" height="12" rx="5" fill="#1A1A22" stroke="rgba(255,255,255,0.12)" stroke-width="0.8"/>
+                <rect x="32" y="12" width="56" height="22" rx="7" fill="#1E1E26" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/>
+                <path d="M26 34 Q20 54 16 72 L16 282 Q16 304 36 310 L84 310 Q104 304 104 282 L104 72 Q100 54 94 34 Z" fill="#14141A" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/>
+                <rect x="20" y="86" width="80" height="204" rx="10" fill="url(#frost-grad)"/>
+                <rect x="20" y="86" width="10" height="204" rx="5" fill="rgba(200,220,255,0.06)"/>
+                <rect x="28" y="140" width="64" height="110" rx="7" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.07)" stroke-width="0.6"/>
+                <line x1="22" y1="200" x2="32" y2="200" stroke="rgba(255,255,255,0.12)" stroke-width="0.6"/>
+                <line x1="22" y1="235" x2="32" y2="235" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/>
+                <line x1="22" y1="265" x2="32" y2="265" stroke="rgba(255,255,255,0.06)" stroke-width="0.6"/>
+                <text x="60" y="192" text-anchor="middle" font-family="monospace" font-weight="900" font-size="9" letter-spacing="3" fill="rgba(255,255,255,0.2)">FROST</text>
+                <text x="60" y="206" text-anchor="middle" font-family="monospace" font-size="6" letter-spacing="4" fill="rgba(255,255,255,0.1)">VAULT</text>
+                <circle cx="38" cy="165" r="1.2" fill="rgba(200,220,255,0.25)"/>
+                <circle cx="82" cy="175" r="0.8" fill="rgba(200,220,255,0.18)"/>
+                <rect x="20" y="300" width="80" height="10" rx="5" fill="#0E0E14" stroke="rgba(255,255,255,0.06)" stroke-width="0.6"/>
+                <circle cx="60" cy="6" r="2.5" fill="rgba(255,255,255,0.18)"/>
+                <defs>
+                  <linearGradient id="frost-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#12121A"/>
+                    <stop offset="40%" stop-color="#181822"/>
+                    <stop offset="70%" stop-color="#14141C"/>
+                    <stop offset="100%" stop-color="#0E0E16"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            {% endif %}
+          {% endif %}
+        </div>
+        <div class="shaker-info">
+          <span class="shaker-badge {% if p.slug == 'crimson-kinetic' %}badge-r{% else %}badge-w{% endif %}">{% if p.slug == 'crimson-kinetic' %}Best Seller{% elif p.slug == 'stealth-titanium' %}Stealth Black{% else %}Cold Lock{% endif %}</span>
+          <div class="shaker-name">{{ p.name }}</div>
+          <div class="shaker-price">${{ p.price }}</div>
+          <p class="shaker-desc">{{ p.desc }}</p>
+          <div class="shaker-specs">
+            {% for spec in p.specs|slice:":3" %}
+            <span class="shaker-spec">{{ spec }}</span>
+            {% endfor %}
+          </div>
+          <div class="shaker-cta">
+            <a href="/shaker/{{ p.slug }}/" class="shaker-link">View Details <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg></a>
+            <form action="/cart/add/" method="POST" style="margin:0">
+              {% csrf_token %}
+              <input type="hidden" name="slug" value="{{ p.slug }}">
+              <input type="hidden" name="qty" value="1">
+              <button type="submit" class="btn btn-g btn-sm" {% if p.slug == 'crimson-kinetic' %}style="border-color:rgba(209,0,0,0.3);color:var(--red)"{% endif %}>Add</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block page_shader %}
+<script>
+ReactBackgrounds.renderBeams("react-bg", {
+  beamWidth: 2,
+  beamHeight: 15,
+  beamNumber: 12,
+  lightColor: "#ff0000",
+  speed: 3.9,
+  noiseIntensity: 2,
+  scale: 0.25,
+  rotation: -50
+});
+ReactBackgrounds.renderBlurText("blur-text-1", {
+  text: "Cold.",
+  delay: 100,
+  animateBy: "letters",
+  direction: "top",
+  className: "t-grad"
+});
+ReactBackgrounds.renderBlurText("blur-text-2", {
+  text: "Cohesive.",
+  delay: 80,
+  animateBy: "letters",
+  direction: "top",
+  className: "t-grad"
+});
+ReactBackgrounds.renderBlurText("blur-text-3", {
+  text: "Premium.",
+  delay: 100,
+  animateBy: "letters",
+  direction: "top"
+});
+
+// Reveal on scroll
+const obs = new IntersectionObserver(
+  es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); }),
+  { threshold: 0.08 }
+);
+document.querySelectorAll('.rv').forEach(el => obs.observe(el));
+</script>
+{% endblock %}

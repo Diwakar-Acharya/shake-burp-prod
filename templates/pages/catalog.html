@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+
+{% block title %}Catalog &mdash; Shake &amp; Burp{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Shaker Showcase ── */
+  .showcase{padding:120px 0 80px}
+  .showcase-header{text-align:center;margin-bottom:72px}
+  .showcase-title{font-size:clamp(36px,5.5vw,64px);color:var(--white);line-height:1.1;font-family:var(--ff-d);font-weight:700;letter-spacing:-0.03em}
+  .showcase-title span{color:var(--red)}
+
+  /* 3-column shaker cards - transparent/black background to blend seamlessly */
+  .shaker-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative;border-top:1px solid rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.04)}
+  @media(max-width:900px){.shaker-grid{grid-template-columns:1fr}}
+
+  .shaker-card{position:relative;display:flex;flex-direction:column;align-items:center;padding:48px 32px 40px;cursor:pointer;border-right:1px solid rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.03);background:transparent;transition:background 0.4s,box-shadow 0.4s}
+  .shaker-card:nth-child(3n){border-right:none}
+  @media(max-width:900px){.shaker-card{border-right:none;padding:48px 24px}}
+  
+  /* Seamless black hover glow instead of grey box */
+  .shaker-card:hover{background:#000000;box-shadow:inset 0 0 40px rgba(209,0,0,0.04)}
+  .shaker-card::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(209,0,0,0.04) 0%,transparent 50%);opacity:0;transition:opacity 0.4s;pointer-events:none}
+  .shaker-card:hover::before{opacity:1}
+
+  /* Index number */
+  .shaker-num{font-family:var(--ff-m);font-size:10px;letter-spacing:0.2em;color:rgba(255,255,255,0.15);text-transform:uppercase;margin-bottom:30px;align-self:flex-start}
+
+  /* Make bottle stage significantly larger and blend seamlessly */
+  .bottle-stage{position:relative;width:200px;height:420px;flex-shrink:0;margin-bottom:30px;display:flex;align-items:center;justify-content:center}
+  .bottle-glow{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:130px;height:45px;border-radius:50%;filter:blur(30px);opacity:0;transition:opacity 0.5s}
+  .shaker-card:hover .bottle-glow{opacity:0.6}
+  
+  /* Larger images fitting the stage */
+  .bottle-svg{width:100%;height:100%;object-fit:contain;transition:transform 0.6s cubic-bezier(0.16,1,0.3,1),filter 0.5s}
+  .shaker-card:hover .bottle-svg{transform:translateY(-14px) scale(1.05)}
+
+  /* Card text styling */
+  .shaker-info{width:100%;border-top:1px solid rgba(255,255,255,0.05);padding-top:24px;background:transparent}
+  .shaker-badge{font-family:var(--ff-m);font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;padding:4px 10px;border-radius:999px;display:inline-block;margin-bottom:12px}
+  .badge-r{background:rgba(209,0,0,0.15);color:var(--red);border:1px solid rgba(209,0,0,0.25)}
+  .badge-w{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.1)}
+  .shaker-name{font-family:var(--ff-d);font-size:22px;font-weight:700;color:var(--white);margin-bottom:8px;line-height:1.1}
+  .shaker-price{font-family:var(--ff-m);font-size:18px;font-weight:700;color:var(--white);margin-bottom:14px}
+  .shaker-desc{font-size:12px;color:var(--steel);line-height:1.65;margin-bottom:24px}
+  .shaker-specs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+  .shaker-spec{font-family:var(--ff-m);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--steel);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:4px 10px}
+  .shaker-cta{display:flex;justify-content:space-between;align-items:center}
+  .shaker-link{font-family:var(--ff-m);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--red);display:flex;align-items:center;gap:6px;transition:gap 0.3s}
+  .shaker-card:hover .shaker-link{gap:10px}
+  .shaker-link svg{width:12px;height:12px;transition:transform 0.3s}
+  .shaker-card:hover .shaker-link svg{transform:translateX(3px)}
+
+  /* Specs section */
+  .specs-sec{padding:80px 0;background:transparent;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06)}
+  .specs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:rgba(255,255,255,0.06);margin-top:48px}
+  @media(max-width:768px){.specs-grid{grid-template-columns:1fr}}
+  .spec-t{background:rgba(15,15,16,0.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:40px 36px;transition:background 0.3s}
+  .spec-t:hover{background:rgba(209,0,0,0.04)}
+  .spec-num{font-family:var(--ff-m);font-size:11px;font-weight:700;color:var(--red);letter-spacing:0.2em;margin-bottom:18px}
+  .spec-title{font-family:var(--ff-d);font-size:20px;font-weight:700;color:var(--white);margin-bottom:12px}
+  .spec-desc{font-size:13px;color:var(--steel);line-height:1.7}
+
+  /* Reveal */
+  .rv{opacity:0;transform:translateY(28px);transition:opacity 0.8s var(--ease),transform 0.8s var(--ease)}
+  .rv.show{opacity:1;transform:translateY(0)}
+  @media(max-width:768px){.bottle-stage{width:160px;height:340px}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+  <div class="ctn">
+    <!-- Showcase Header (Centered, No Subtitle Description) -->
+    <div class="showcase-header rv">
+      <p class="t-label" style="margin-bottom:16px">// The Shaker Collection</p>
+      <h1 class="showcase-title">Precision <span>Shakers</span></h1>
+    </div>
+
+    <!-- Product Showcase Grid -->
+    <div class="shaker-grid">
+      {% for p in products %}
+      <div class="shaker-card rv">
+        <div class="shaker-num">0{{ forloop.counter }} / 06</div>
+        
+        <!-- Bottle Stage (Tag closures verified to prevent nesting errors) -->
+        <div class="bottle-stage">
+          {% if p.image %}
+            <div class="bottle-glow" style="background:{{ p.color }};"></div>
+            <img class="bottle-svg" src="{{ p.image.url }}" alt="{{ p.name }}" style="background:#000000; border-radius:12px;">
+          {% else %}
+            {% if p.slug == 'stealth-titanium' %}
+              <div class="bottle-glow" style="background:#888;"></div>
+              <svg class="bottle-svg" viewBox="0 0 120 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="42" y="0" width="36" height="10" rx="4" fill="#1C1C1E" stroke="rgba(255,255,255,0.12)" stroke-width="0.8"/>
+                <rect x="38" y="10" width="44" height="20" rx="6" fill="#232325" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/>
+                <path d="M32 30 Q28 50 22 68 L22 280 Q22 300 40 306 L80 306 Q98 300 98 280 L98 68 Q92 50 88 30 Z" fill="#1A1A1C" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/>
+                <rect x="26" y="80" width="68" height="200" rx="8" fill="url(#stealth-grad)"/>
+                <rect x="26" y="80" width="8" height="200" rx="4" fill="rgba(255,255,255,0.04)"/>
+                <rect x="32" y="130" width="56" height="100" rx="6" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/>
+                <text x="60" y="182" text-anchor="middle" font-family="monospace" font-weight="900" font-size="9" letter-spacing="3" fill="rgba(255,255,255,0.18)">STEALTH</text>
+                <text x="60" y="196" text-anchor="middle" font-family="monospace" font-size="6" letter-spacing="4" fill="rgba(255,255,255,0.1)">TITANIUM</text>
+                <line x1="28" y1="200" x2="36" y2="200" stroke="rgba(255,255,255,0.12)" stroke-width="0.6"/>
+                <line x1="28" y1="230" x2="36" y2="230" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/>
+                <rect x="26" y="296" width="68" height="10" rx="5" fill="#111113" stroke="rgba(255,255,255,0.06)" stroke-width="0.6"/>
+                <circle cx="60" cy="5" r="2" fill="rgba(255,255,255,0.2)"/>
+                <defs>
+                  <linearGradient id="stealth-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#1A1A1C"/>
+                    <stop offset="30%" stop-color="#252527"/>
+                    <stop offset="60%" stop-color="#1E1E20"/>
+                    <stop offset="100%" stop-color="#141416"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            {% elif p.slug == 'crimson-kinetic' %}
+              <div class="bottle-glow" style="background:#D10000;"></div>
+              <svg class="bottle-svg" viewBox="0 0 120 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="42" y="0" width="36" height="10" rx="4" fill="#3A0000" stroke="rgba(209,0,0,0.4)" stroke-width="0.8"/>
+                <rect x="38" y="10" width="44" height="20" rx="6" fill="#2D0000" stroke="rgba(209,0,0,0.3)" stroke-width="0.8"/>
+                <path d="M32 30 Q28 50 22 68 L22 280 Q22 300 40 306 L80 306 Q98 300 98 280 L98 68 Q92 50 88 30 Z" fill="#1C0000" stroke="rgba(209,0,0,0.15)" stroke-width="0.8"/>
+                <rect x="26" y="80" width="68" height="200" rx="8" fill="url(#crimson-grad)"/>
+                <rect x="26" y="80" width="8" height="200" rx="4" fill="rgba(255,100,100,0.06)"/>
+                <rect x="32" y="130" width="56" height="100" rx="6" fill="rgba(209,0,0,0.18)" stroke="rgba(209,0,0,0.3)" stroke-width="0.6"/>
+                <rect x="40" y="150" width="40" height="60" rx="4" fill="rgba(209,0,0,0.12)"/>
+                <text x="60" y="182" text-anchor="middle" font-family="monospace" font-weight="900" font-size="9" letter-spacing="2" fill="rgba(255,80,80,0.7)">CRIMSON</text>
+                <text x="60" y="196" text-anchor="middle" font-family="monospace" font-size="6" letter-spacing="3" fill="rgba(255,80,80,0.4)">KINETIC</text>
+                <line x1="26" y1="100" x2="26" y2="270" stroke="rgba(209,0,0,0.5)" stroke-width="1.5"/>
+                <line x1="94" y1="100" x2="94" y2="270" stroke="rgba(209,0,0,0.3)" stroke-width="0.8"/>
+                <line x1="28" y1="200" x2="36" y2="200" stroke="rgba(255,80,80,0.3)" stroke-width="0.6"/>
+                <line x1="28" y1="230" x2="36" y2="230" stroke="rgba(255,80,80,0.2)" stroke-width="0.6"/>
+                <rect x="26" y="296" width="68" height="10" rx="5" fill="#1A0000" stroke="rgba(209,0,0,0.2)" stroke-width="0.6"/>
+                <circle cx="60" cy="5" r="2" fill="rgba(209,0,0,0.6)"/>
+                <defs>
+                  <linearGradient id="crimson-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#1C0000"/>
+                    <stop offset="35%" stop-color="#280000"/>
+                    <stop offset="65%" stop-color="#1E0000"/>
+                    <stop offset="100%" stop-color="#150000"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            {% elif p.slug == 'frost-vault' %}
+              <div class="bottle-glow" style="background:#0055ff;"></div>
+              <svg class="bottle-svg" viewBox="0 0 120 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="36" y="0" width="48" height="12" rx="5" fill="#1A1A22" stroke="rgba(255,255,255,0.12)" stroke-width="0.8"/>
+                <rect x="32" y="12" width="56" height="22" rx="7" fill="#1E1E26" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/>
+                <path d="M26 34 Q20 54 16 72 L16 282 Q16 304 36 310 L84 310 Q104 304 104 282 L104 72 Q100 54 94 34 Z" fill="#14141A" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/>
+                <rect x="20" y="86" width="80" height="204" rx="10" fill="url(#frost-grad)"/>
+                <rect x="20" y="86" width="10" height="204" rx="5" fill="rgba(200,220,255,0.06)"/>
+                <rect x="28" y="140" width="64" height="110" rx="7" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.07)" stroke-width="0.6"/>
+                <line x1="22" y1="200" x2="32" y2="200" stroke="rgba(255,255,255,0.12)" stroke-width="0.6"/>
+                <line x1="22" y1="235" x2="32" y2="235" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/>
+                <line x1="22" y1="265" x2="32" y2="265" stroke="rgba(255,255,255,0.06)" stroke-width="0.6"/>
+                <text x="60" y="192" text-anchor="middle" font-family="monospace" font-weight="900" font-size="9" letter-spacing="3" fill="rgba(255,255,255,0.2)">FROST</text>
+                <text x="60" y="206" text-anchor="middle" font-family="monospace" font-size="6" letter-spacing="4" fill="rgba(255,255,255,0.1)">VAULT</text>
+                <circle cx="38" cy="165" r="1.2" fill="rgba(200,220,255,0.25)"/>
+                <circle cx="82" cy="175" r="0.8" fill="rgba(200,220,255,0.18)"/>
+                <rect x="20" y="300" width="80" height="10" rx="5" fill="#0E0E14" stroke="rgba(255,255,255,0.06)" stroke-width="0.6"/>
+                <circle cx="60" cy="6" r="2.5" fill="rgba(255,255,255,0.18)"/>
+                <defs>
+                  <linearGradient id="frost-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#12121A"/>
+                    <stop offset="40%" stop-color="#181822"/>
+                    <stop offset="70%" stop-color="#14141C"/>
+                    <stop offset="100%" stop-color="#0E0E16"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            {% elif p.slug == 'onyx-shadow' %}
+              <div class="bottle-glow" style="background:#555;"></div>
+              <svg class="bottle-svg" viewBox="0 0 120 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="42" y="0" width="36" height="10" rx="4" fill="#111113" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/>
+                <rect x="38" y="10" width="44" height="20" rx="6" fill="#18181B" stroke="rgba(255,255,255,0.05)" stroke-width="0.8"/>
+                <path d="M32 30 Q28 50 22 68 L22 280 Q22 300 40 306 L80 306 Q98 300 98 280 L98 68 Q92 50 88 30 Z" fill="#0d0d0f" stroke="rgba(255,255,255,0.05)" stroke-width="0.8"/>
+                <rect x="26" y="80" width="68" height="200" rx="8" fill="url(#onyx-grad)"/>
+                <rect x="26" y="80" width="8" height="200" rx="4" fill="rgba(255,255,255,0.03)"/>
+                <rect x="32" y="130" width="56" height="100" rx="6" fill="rgba(255,255,255,0.01)" stroke="rgba(255,255,255,0.05)" stroke-width="0.6"/>
+                <text x="60" y="182" text-anchor="middle" font-family="monospace" font-weight="900" font-size="9" letter-spacing="3" fill="rgba(255,255,255,0.12)">ONYX</text>
+                <text x="60" y="196" text-anchor="middle" font-family="monospace" font-size="6" letter-spacing="4" fill="rgba(255,255,255,0.06)">SHADOW</text>
+                <line x1="28" y1="200" x2="36" y2="200" stroke="rgba(255,255,255,0.08)" stroke-width="0.6"/>
+                <line x1="28" y1="230" x2="36" y2="230" stroke="rgba(255,255,255,0.05)" stroke-width="0.6"/>
+                <rect x="26" y="296" width="68" height="10" rx="5" fill="#09090b" stroke="rgba(255,255,255,0.04)" stroke-width="0.6"/>
+                <circle cx="60" cy="5" r="2" fill="rgba(255,255,255,0.1)"/>
+                <defs>
+                  <linearGradient id="onyx-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#08080A"/>
+                    <stop offset="30%" stop-color="#121215"/>
+                    <stop offset="60%" stop-color="#0E0E10"/>
+                    <stop offset="100%" stop-color="#050507"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            {% elif p.slug == 'corporate-pro' %}
+              <div class="bottle-glow" style="background:#8b5cf6;"></div>
+              <svg class="bottle-svg" viewBox="0 0 120 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="42" y="0" width="36" height="10" rx="4" fill="#201535" stroke="rgba(139,92,246,0.3)" stroke-width="0.8"/>
+                <rect x="38" y="10" width="44" height="20" rx="6" fill="#1C1030" stroke="rgba(139,92,246,0.2)" stroke-width="0.8"/>
+                <path d="M32 30 Q28 50 22 68 L22 280 Q22 300 40 306 L80 306 Q98 300 98 280 L98 68 Q92 50 88 30 Z" fill="#120922" stroke="rgba(139,92,246,0.15)" stroke-width="0.8"/>
+                <rect x="26" y="80" width="68" height="200" rx="8" fill="url(#corp-grad)"/>
+                <rect x="26" y="80" width="8" height="200" rx="4" fill="rgba(255,255,255,0.05)"/>
+                <rect x="32" y="130" width="56" height="100" rx="6" fill="rgba(139,92,246,0.08)" stroke="rgba(139,92,246,0.2)" stroke-width="0.6"/>
+                <text x="60" y="182" text-anchor="middle" font-family="monospace" font-weight="900" font-size="9" letter-spacing="3" fill="rgba(167,139,250,0.6)">CORP</text>
+                <text x="60" y="196" text-anchor="middle" font-family="monospace" font-size="6" letter-spacing="4" fill="rgba(167,139,250,0.3)">PRO</text>
+                <line x1="28" y1="200" x2="36" y2="200" stroke="rgba(167,139,250,0.3)" stroke-width="0.6"/>
+                <line x1="28" y1="230" x2="36" y2="230" stroke="rgba(167,139,250,0.2)" stroke-width="0.6"/>
+                <rect x="26" y="296" width="68" height="10" rx="5" fill="#0E051C" stroke="rgba(139,92,246,0.15)" stroke-width="0.6"/>
+                <circle cx="60" cy="5" r="2" fill="rgba(139,92,246,0.4)"/>
+                <defs>
+                  <linearGradient id="corp-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#120720"/>
+                    <stop offset="35%" stop-color="#24123E"/>
+                    <stop offset="65%" stop-color="#180A2B"/>
+                    <stop offset="100%" stop-color="#0E031A"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            {% else %}
+              <!-- apex-endure and fallback -->
+              <div class="bottle-glow" style="background:#22c55e;"></div>
+              <svg class="bottle-svg" viewBox="0 0 120 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="42" y="0" width="36" height="10" rx="4" fill="#0C2012" stroke="rgba(34,197,94,0.3)" stroke-width="0.8"/>
+                <rect x="38" y="10" width="44" height="20" rx="6" fill="#0E2616" stroke="rgba(34,197,94,0.2)" stroke-width="0.8"/>
+                <path d="M32 30 Q28 50 22 68 L22 280 Q22 300 40 306 L80 306 Q98 300 98 280 L98 68 Q92 50 88 30 Z" fill="#08180E" stroke="rgba(34,197,94,0.15)" stroke-width="0.8"/>
+                <rect x="26" y="80" width="68" height="200" rx="8" fill="url(#apex-grad)"/>
+                <rect x="26" y="80" width="8" height="200" rx="4" fill="rgba(255,255,255,0.05)"/>
+                <rect x="32" y="130" width="56" height="100" rx="6" fill="rgba(34,197,94,0.08)" stroke="rgba(34,197,94,0.2)" stroke-width="0.6"/>
+                <text x="60" y="182" text-anchor="middle" font-family="monospace" font-weight="900" font-size="9" letter-spacing="3" fill="rgba(74,222,128,0.6)">APEX</text>
+                <text x="60" y="196" text-anchor="middle" font-family="monospace" font-size="6" letter-spacing="4" fill="rgba(74,222,128,0.3)">ENDURE</text>
+                <line x1="28" y1="200" x2="36" y2="200" stroke="rgba(74,222,128,0.3)" stroke-width="0.6"/>
+                <line x1="28" y1="230" x2="36" y2="230" stroke="rgba(74,222,128,0.2)" stroke-width="0.6"/>
+                <rect x="26" y="296" width="68" height="10" rx="5" fill="#05120A" stroke="rgba(34,197,94,0.15)" stroke-width="0.6"/>
+                <circle cx="60" cy="5" r="2" fill="rgba(34,197,94,0.4)"/>
+                <defs>
+                  <linearGradient id="apex-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#05140A"/>
+                    <stop offset="35%" stop-color="#122A1A"/>
+                    <stop offset="65%" stop-color="#0C2012"/>
+                    <stop offset="100%" stop-color="#030E06"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            {% endif %}
+          {% endif %}
+        </div>
+
+        <div class="shaker-info">
+          <span class="shaker-badge {{ p.badge_class }}">{{ p.badge }}</span>
+          <div class="shaker-name">{{ p.name }}</div>
+          <div class="shaker-price">${{ p.price }}</div>
+          <p class="shaker-desc">{{ p.desc }}</p>
+          <div class="shaker-specs">
+            {% for spec in p.specs %}
+            <span class="shaker-spec">{{ spec }}</span>
+            {% endfor %}
+          </div>
+          <div class="shaker-cta">
+            <a href="/shaker/{{ p.slug }}/" class="shaker-link">View Details <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg></a>
+            <form action="/cart/add/" method="POST" style="margin:0">
+              {% csrf_token %}
+              <input type="hidden" name="slug" value="{{ p.slug }}">
+              <input type="hidden" name="qty" value="1">
+              <button type="submit" class="btn btn-g btn-sm">Add</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Specs Section -->
+  <div class="specs-sec">
+    <div class="ctn">
+      <p class="t-label rv">// Hardware &amp; Material Specs</p>
+      <h2 class="t-s rv" style="font-size:clamp(32px,4vw,48px);color:var(--white);margin-top:12px">Engineered Without Compromise</h2>
+      <div class="specs-grid">
+        <div class="spec-t rv"><div class="spec-num">01 &mdash;</div><div class="spec-title">Burp Valve Cap</div><div class="spec-desc">Patented pressure-release valve eliminates violent pops and liquid splatter. Rated 50,000 cycles.</div></div>
+        <div class="spec-t rv"><div class="spec-num">02 &mdash;</div><div class="spec-title">Silent Kinetic Mixer</div><div class="spec-desc">Internal spiral fins break down protein powders without rattling metal mixer balls. BPA-free polymer.</div></div>
+        <div class="spec-t rv"><div class="spec-num">03 &mdash;</div><div class="spec-title">UV DTF Perma-Bond</div><div class="spec-desc">Direct-to-film UV transfer cures polymer ink into steel surface. Dishwasher safe up to 70&deg;C. 9H hardness.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block page_shader %}
+<script>
+ReactBackgrounds.renderFerrofluid("react-bg", {
+  colors: ["#ff0000","#710000","#ae4141","#ff0000"],
+  speed: 0.5,
+  scale: 1.3,
+  turbulence: 1.1,
+  fluidity: 0.07,
+  rimWidth: 0.24,
+  sharpness: 2.2,
+  shimmer: 1.5,
+  glow: 1.5,
+  flowDirection: "down",
+  opacity: 1.0,
+  mouseInteraction: true,
+  mouseStrength: 1.3,
+  mouseRadius: 0.15
+});
+
+// Reveal on scroll
+const obs = new IntersectionObserver(
+  es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); }),
+  { threshold: 0.08 }
+);
+document.querySelectorAll('.rv').forEach(el => obs.observe(el));
+</script>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} &mdash; Shake &amp; Burp{% endblock %}
+{% block extra_css %}
+<style>
+  .det-wrap{padding:120px 0 80px}
+  .det-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+  @media(max-width:900px){.det-grid{grid-template-columns:1fr;gap:48px}}
+  
+  /* Left column: Image Card - pure black to blend seamlessly */
+  .det-showcase{height:540px;background:#000000;border:none;border-radius:28px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,0.5)}
+  .det-glow{position:absolute;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,{{ product.color }}33,transparent 70%);filter:blur(20px);pointer-events:none}
+  .det-bottle{width:280px;height:auto;max-height:90%;object-fit:contain;filter:drop-shadow(0 0 24px {{ product.color }}22);transition:transform 0.6s var(--ease)}
+  .det-showcase:hover .det-bottle{transform:translateY(-8px) scale(1.03)}
+
+  /* Right column: Content */
+  .det-content{transform:rotate(-1.5deg) skewX(-2deg);transform-origin:left center}
+  .det-h{font-family:var(--ff-d);font-size:clamp(32px,4.5vw,52px);font-weight:700;color:var(--white);margin:12px 0 16px;line-height:1.0}
+  .det-price{font-family:var(--ff-m);font-size:28px;font-weight:700;color:var(--white);margin-bottom:24px;display:flex;align-items:center;gap:12px}
+  .det-price span{font-size:12px;color:var(--red);border:1px solid rgba(209,0,0,0.3);background:rgba(209,0,0,0.12);padding:4px 10px;border-radius:8px}
+  .det-desc{font-size:15px;color:var(--steel);line-height:1.75;margin-bottom:32px}
+  
+  .det-features{list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:36px}
+  .det-feature{display:flex;align-items:center;gap:12px;font-family:var(--ff-m);font-size:12px;color:var(--white)}
+  .det-feature-dot{width:6px;height:6px;border-radius:50%;background:{{ product.color }}}
+  
+  /* Form components */
+  .buy-form{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  .qty-input{width:80px;padding:14px;border-radius:16px;background:rgba(255,255,255,0.03);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--border);color:var(--white);font-family:var(--ff-m);font-size:14px;text-align:center;outline:none}
+  .qty-input:focus{border-color:var(--border-r)}
+  .buy-btn{padding:15px 36px;font-size:12px;box-shadow:0 0 25px {{ product.color }}44}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+  <div class="ctn">
+    <div class="det-wrap">
+      <div class="det-grid">
+        <!-- Showcase (Left) -->
+        <div class="det-showcase rv show">
+          <div class="det-glow"></div>
+          {% if product.image %}
+            <img class="det-bottle" src="{{ product.image.url }}" alt="{{ product.name }}">
+          {% else %}
+            <svg class="det-bottle" viewBox="0 0 90 200" fill="none">
+              {{ product.svg|safe }}
+            </svg>
+          {% endif %}
+        </div>
+        
+        <!-- Details (Right) -->
+        <div class="det-content rv show">
+          <p class="t-label">// Product Detail</p>
+          <h1 class="det-h">{{ product.name }}</h1>
+          <div class="det-price">
+            ${{ product.price }}
+            <span>{{ product.badge }}</span>
+          </div>
+          <p class="det-desc">{{ product.desc }}</p>
+          
+          <ul class="det-features">
+            {% for spec in product.specs %}
+            <li class="det-feature">
+              <div class="det-feature-dot"></div>
+              {{ spec }}
+            </li>
+            {% endfor %}
+          </ul>
+          
+          <form class="buy-form" action="/cart/add/" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="slug" value="{{ product.slug }}">
+            <input type="number" name="qty" class="qty-input" value="1" min="1" max="99">
+            <button type="submit" class="btn btn-p buy-btn" style="background:{{ product.color }} !important; border-color:{{ product.color }}88 !important;">Add To Cart</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block page_shader %}
+<script>
+ReactBackgrounds.renderLightRays("react-bg", {
+  raysOrigin: "top-center",
+  raysColor: "{{ product.color }}",
+  raysSpeed: 1.8,
+  lightSpread: 2.3,
+  rayLength: 3.5,
+  pulsating: false,
+  fadeDistance: 0.95,
+  saturation: 1.5,
+  followMouse: true,
+  mouseInfluence: 0.2,
+  noiseAmount: 0.0,
+  distortion: 0.0
+});
+</script>
+{% endblock %}

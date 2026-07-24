@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Terms of Service &mdash; Shake &amp; Burp{% endblock %}
+{% block extra_css %}
+<style>
+  .legal-wrap{padding:100px 0}
+  .legal-box{max-width:800px;margin:0 auto;border-radius:28px;padding:56px 52px}
+  @media(max-width:768px){.legal-box{padding:36px 24px}}
+  .legal-h{font-size:clamp(32px,5vw,48px);color:var(--white);margin:12px 0 12px}
+  .legal-date{font-family:var(--ff-m);font-size:11px;color:var(--steel);letter-spacing:0.08em;margin-bottom:36px}
+  .legal-body h2{font-family:var(--ff-d);font-size:20px;font-weight:700;color:var(--white);margin:36px 0 14px;text-transform:uppercase;letter-spacing:-0.02em}
+  .legal-body p{font-size:14px;color:var(--steel);line-height:1.8;margin-bottom:16px}
+  .legal-body ul{margin:0 0 16px 20px;font-size:14px;color:var(--steel);line-height:1.8}
+  .legal-body ul li{margin-bottom:6px}
+  .legal-body strong{color:var(--white)}
+  .rv{opacity:0;transform:translateY(28px);transition:opacity 0.8s var(--ease),transform 0.8s var(--ease)}
+  .rv.show{opacity:1;transform:translateY(0)}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+  <div class="ctn">
+    <div class="legal-wrap">
+      <div class="glass legal-box rv">
+        <p class="t-label">// Legal</p>
+        <h1 class="t-s legal-h">Terms of Service</h1>
+        <p class="legal-date">Last Updated: July 19, 2026</p>
+        <div class="legal-body">
+          <h2>1. Acceptance of Terms</h2>
+          <p>By accessing or using the Shake &amp; Burp platform (&ldquo;Service&rdquo;), you agree to be bound by these Terms of Service. If you do not agree to all the terms, you may not access the Service.</p>
+
+          <h2>2. Products &amp; Customization</h2>
+          <p>All shaker bottles listed on the platform are manufactured with <strong>316L surgical-grade stainless steel</strong> and carry our standard quality guarantee. Custom UV DTF printing is a bespoke service &mdash; once a custom print order has been confirmed and digital proof approved, it cannot be cancelled.</p>
+          <ul>
+            <li>Ready-made products qualify for our standard 30-day return window.</li>
+            <li>Custom printed products are non-returnable unless a manufacturing defect is verified.</li>
+            <li>Uploaded artwork must be original or properly licensed &mdash; we are not responsible for IP violations.</li>
+          </ul>
+
+          <h2>3. Ordering &amp; Payment</h2>
+          <p>All payments are processed securely through <strong>Razorpay</strong> or <strong>Stripe</strong>. Prices are listed in USD and include GST where applicable. Bulk B2B orders (20+ units) receive tiered volume discounts applied automatically at checkout.</p>
+
+          <h2>4. Shipping &amp; Delivery</h2>
+          <ul>
+            <li><strong>Standard orders:</strong> 2&ndash;3 business days to metro cities, 5&ndash;7 to other locations.</li>
+            <li><strong>Custom print orders:</strong> 24hr print + cure, then standard shipping timeframes.</li>
+            <li><strong>Bulk orders (100+ units):</strong> Dispatched within 5 business days with real-time tracking.</li>
+          </ul>
+
+          <h2>5. Intellectual Property</h2>
+          <p>All content on the Shake &amp; Burp platform &mdash; including designs, logos, copy, and UI &mdash; is the intellectual property of Shake &amp; Burp and may not be reproduced without written consent. Users retain ownership of any artwork they upload for customization purposes.</p>
+
+          <h2>6. Limitation of Liability</h2>
+          <p>Shake &amp; Burp shall not be liable for any indirect, incidental, or consequential damages arising from the use of our products or platform. Our total liability shall not exceed the purchase price of the product in question.</p>
+
+          <h2>7. Changes to Terms</h2>
+          <p>We reserve the right to modify these Terms at any time. Changes take effect upon posting to this page. Continued use of the Service constitutes acceptance of modified Terms.</p>
+
+          <h2>8. Contact</h2>
+          <p>For questions about these Terms, contact us at <strong>hello@shakeandburp.com</strong> or visit our <a href="/contact/" style="color:var(--red)">Contact page</a>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block page_shader %}
+<script>
+ReactBackgrounds.renderSideRays("react-bg", {
+  rayColor1: "#ff0404",
+  rayColor2: "#4d0000",
+  origin: "top-right",
+  speed: 1.8,
+  intensity: 3,
+  spread: 1.9,
+  tilt: 4,
+  saturation: 2,
+  blend: 0.73,
+  falloff: 1.6,
+  opacity: 1.0
+});
+setTimeout(()=>{document.querySelectorAll('.rv').forEach(el=>el.classList.add('show'))},100);
+</script>
+{% endblock %}

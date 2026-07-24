@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: docker/django.Dockerfile
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --threads 2
+    volumes:
+      - static_volume:/app/staticfiles
+    env_file:
+      - .env.production
+    restart: always
+
+  celery:
+    build:
+      context: .
+      dockerfile: docker/django.Dockerfile
+    command: celery -A config worker --loglevel=info
+    env_file:
+      - .env.production
+    depends_on:
+      - redis
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+
+  nginx:
+    image: nginx:stable-alpine
+    volumes:
+      - ./docker/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/app/staticfiles:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - web
+    restart: always
+
+volumes:
+  static_volume:

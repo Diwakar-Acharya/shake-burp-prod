@@ -1,0 +1,316 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Shake &amp; Burp{% endblock %}</title>
+  <meta name="description" content="{% block meta_desc %}The world's first custom UV DTF insulated shaker bottle platform.{% endblock %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- React Backgrounds CSS -->
+  <link rel="stylesheet" href="{% static 'js/react-backgrounds.css' %}?v=1.0.4">
+  
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#070707;--bg2:#0F0F10;--card:#151515;
+      --red:#D10000;--red-glow:#6A0000;--red-bright:#FF0000;
+      --white:#F8F8F8;--steel:#B8B8B8;
+      --border:rgba(255,255,255,0.07);--border-r:rgba(209,0,0,0.35);
+      --ff-d:'Space Grotesk',sans-serif;--ff-b:'Inter',sans-serif;--ff-m:'JetBrains Mono',monospace;
+      --ease:cubic-bezier(0.16,1,0.3,1);
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:var(--ff-b);background:var(--bg);color:var(--white);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+    ::-webkit-scrollbar{width:6px}
+    ::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:#1A1A1D;border-radius:3px}
+    ::-webkit-scrollbar-thumb:hover{background:var(--red)}
+    a{text-decoration:none;color:inherit}
+
+    /* ── Canvas BG ── */
+    #react-bg{position:fixed;inset:0;z-index:0;width:100vw;height:100vh}
+    .page-layer{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column}
+    /* ── Nav ── */
+    #nav{position:sticky;top:0;z-index:100;width:100%;border-bottom:1px solid rgba(255,255,255,0.06);background:rgba(15,15,16,0.45);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%)}
+    .nav-in{max-width:1440px;margin:0 auto;padding:0 48px;height:68px;display:flex;align-items:center;justify-content:space-between}
+    @media(max-width:768px){.nav-in{padding:0 20px}}
+    .logo{font-family:var(--ff-d);font-weight:700;font-size:20px;letter-spacing:-0.03em;display:flex;align-items:center;gap:10px}
+    .logo-dot{width:32px;height:32px;border-radius:9px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+    @keyframes pulse-r{0%,100%{box-shadow:0 0 0 0 rgba(209,0,0,0.5)}50%{box-shadow:0 0 0 6px rgba(209,0,0,0)}}
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--red);animation:pulse-r 2s ease-in-out infinite;flex-shrink:0}
+    .logo span{color:var(--red)}
+    
+    /* Nav links aligned to the right */
+    .nav-links{display:flex;gap:24px;list-style:none;margin-left:auto;margin-right:0;align-items:center}
+    .nav-links a{color:var(--steel);transition:all 0.25s;display:inline-flex;align-items:center;padding:6px;border-radius:8px}
+    .nav-links a:hover,.nav-links a.active{color:var(--white)}
+    .nav-icon{width:20px;height:20px;stroke:currentColor;transition:stroke 0.25s,transform 0.2s;display:block}
+    .nav-links a:hover .nav-icon,.nav-links a.active .nav-icon{transform:scale(1.1)}
+    
+    .nav-text{display:none}
+    .nav-badge{font-family:var(--ff-m);font-size:8px;font-weight:700;padding:2px 5px;border-radius:5px;background:var(--red);color:var(--white);border:1px solid rgba(255,255,255,0.1);margin-left:4px}
+    
+    .nav-acts{display:flex;gap:10px;align-items:center}
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      z-index: 200;
+    }
+    .nav-toggle span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--white);
+      transition: transform 0.3s, opacity 0.3s;
+      transform-origin: center;
+    }
+    @media(max-width:900px) {
+      .nav-toggle {
+        display: flex;
+      }
+      .nav-links {
+        display: flex;
+        position: fixed;
+        inset: 0;
+        top: 68px;
+        flex-direction: column;
+        background: rgba(15,15,16,0.95);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        padding: 40px 24px;
+        gap: 24px;
+        transform: translateY(-100%);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.4s var(--ease), opacity 0.4s var(--ease);
+        z-index: 99;
+        margin: 0;
+      }
+      .nav-text {
+        display: inline;
+        margin-left: 10px;
+        font-size: 14px;
+        font-family: var(--ff-m);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+      body.nav-open .nav-links {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+      }
+      body.nav-open .nav-toggle span:nth-child(1) {
+        transform: translateY(8px) rotate(45deg);
+      }
+      body.nav-open .nav-toggle span:nth-child(2) {
+        opacity: 0;
+      }
+      body.nav-open .nav-toggle span:nth-child(3) {
+        transform: translateY(-8px) rotate(-45deg);
+      }
+    }
+    /* ── Buttons ── */
+    .btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--ff-m);font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;border-radius:16px;padding:12px 24px;cursor:pointer;border:none;transition:all 0.35s var(--ease);white-space:nowrap}
+    .btn svg{width:14px;height:14px;transition:transform 0.3s var(--ease)}
+    .btn:hover svg{transform:translateX(3px)}
+    .btn-p{background:var(--red);color:var(--white);border:1px solid rgba(255,60,60,0.6);box-shadow:0 0 20px rgba(209,0,0,0.4)}
+    .btn-p:hover{background:#E50000;box-shadow:0 0 36px rgba(209,0,0,0.7);transform:translateY(-2px)}
+    .btn-g{background:rgba(255,255,255,0.04);color:var(--white);border:1px solid var(--border)}
+    .btn-g:hover{background:rgba(209,0,0,0.12);border-color:var(--border-r);box-shadow:0 0 20px rgba(209,0,0,0.2);transform:translateY(-2px)}
+    .btn-sm{padding:9px 18px;font-size:10px;border-radius:12px}
+
+    /* ── Glass ── */
+    .glass{background:rgba(15,15,16,0.55);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--border)}
+    .glass-card{background:rgba(21,21,21,0.6);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--border);transition:border-color 0.4s var(--ease),transform 0.4s var(--ease),box-shadow 0.4s var(--ease)}
+    .glass-card:hover{border-color:var(--border-r);transform:translateY(-5px);box-shadow:0 20px 50px rgba(0,0,0,0.7),0 0 30px rgba(209,0,0,0.12)}
+
+    /* ── Typography ── */
+    .t-d{font-family:var(--ff-d);font-weight:700;text-transform:uppercase;letter-spacing:-0.04em;line-height:0.93}
+    .t-s{font-family:var(--ff-d);font-weight:700;text-transform:uppercase;letter-spacing:-0.03em}
+    .t-m{font-family:var(--ff-m);font-weight:600}
+    .t-label{font-family:var(--ff-m);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--red)}
+    .t-grad{background:linear-gradient(180deg,#FFF 0%,#5A5A5A 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+    /* ── Container ── */
+    .ctn{max-width:1440px;margin:0 auto;padding:0 48px}
+    @media(max-width:768px){.ctn{padding:0 20px}}
+
+    /* ── Footer ── */
+    #ft{border-top:1px solid rgba(255,255,255,0.06);background:rgba(15,15,16,0.45);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);margin-top:auto}
+    .ft-top{padding:56px 0;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px}
+    @media(max-width:900px){.ft-top{grid-template-columns:1fr 1fr}}
+    @media(max-width:560px){.ft-top{grid-template-columns:1fr}}
+    .ft-desc{font-size:13px;color:var(--steel);line-height:1.7;margin:14px 0 20px;max-width:260px}
+    .ft-h{font-family:var(--ff-m);font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--white);margin-bottom:18px}
+    .ft-links{list-style:none;display:flex;flex-direction:column;gap:11px}
+    .ft-links a{font-size:13px;color:var(--steel);transition:color 0.25s}
+    .ft-links a:hover{color:var(--white)}
+    .ft-bot{border-top:1px solid var(--border);padding:20px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+    .ft-copy{font-family:var(--ff-m);font-size:10px;color:rgba(184,184,184,0.4)}
+    .ft-sys{display:flex;gap:20px;font-family:var(--ff-m);font-size:10px;color:rgba(184,184,184,0.35)}
+    .sys-d{width:5px;height:5px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:5px}
+
+    /* ── Page content ── */
+    .page-content{flex:1;padding:80px 0}
+    @media(max-width:768px){.page-content{padding:48px 0}}
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- React Background Container -->
+<div id="react-bg"></div>
+
+<!-- Page Layer -->
+<div class="page-layer">
+
+  <!-- Nav -->
+  <header id="nav">
+    <div class="nav-in">
+      <a href="/" class="logo">
+        <div class="logo-dot"><div class="dot"></div></div>
+        SHAKE &amp; <span>BURP</span>
+      </a>
+      <ul class="nav-links">
+        <li>
+          <a href="/" {% if page == 'home' %}class="active"{% endif %} title="Home">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span class="nav-text">Home</span>
+          </a>
+        </li>
+        <li>
+          <a href="/catalog/" {% if page == 'catalog' %}class="active"{% endif %} title="Catalog">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span class="nav-text">Catalog</span>
+          </a>
+        </li>
+        <li>
+          <a href="/contact/" {% if page == 'contact' %}class="active"{% endif %} title="Contact">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <span class="nav-text">Contact</span>
+          </a>
+        </li>
+        <li>
+          <a href="/cart/" {% if page == 'cart' %}class="active"{% endif %} title="Shopping Cart" style="position: relative;">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+            {% with cart=request.session.cart %}
+            {% if cart %}<span class="nav-badge">{{ cart.values|length }}</span>{% endif %}
+            {% endwith %}
+            <span class="nav-text" style="margin-left: 10px;">Cart</span>
+          </a>
+        </li>
+        {% if request.user.is_authenticated %}
+        <li>
+          <a href="/profile/" {% if page == 'profile' %}class="active"{% endif %} title="My Profile ({{ request.user.username }})">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="nav-text">Profile</span>
+          </a>
+        </li>
+        <li>
+          <form action="/logout/" method="POST" style="display:inline">
+            {% csrf_token %}
+            <button type="submit" title="Logout" style="background:none;border:none;color:var(--steel);cursor:pointer;transition:color 0.25s;padding:6px;display:inline-flex;align-items:center;">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" onmouseover="this.style.color='var(--white)'" onmouseout="this.style.color='var(--steel)'"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+              <span class="nav-text" style="color:var(--steel)">Logout</span>
+            </button>
+          </form>
+        </li>
+        {% else %}
+        <li>
+          <a href="/login/" {% if page == 'login' %}class="active"{% endif %} title="Login">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
+            <span class="nav-text">Login</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+      <div class="nav-acts">
+        <button class="nav-toggle" onclick="document.body.classList.toggle('nav-open')" aria-label="Toggle Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Page Content -->
+  {% block content %}{% endblock %}
+
+  <!-- Footer -->
+  {% if page == 'home' or page == 'cart' %}
+  <footer id="ft">
+    <div class="ctn">
+      <div class="ft-top">
+        <div>
+          <a href="/" class="logo" style="display:inline-flex">
+            <div class="logo-dot"><div class="dot"></div></div>
+            SHAKE &amp; <span>BURP</span>
+          </a>
+          <p class="ft-desc">Premium UV DTF custom shaker bottles for athletes, influencers, and corporate brands. Cold, cohesive, built to last.</p>
+        </div>
+        <div>
+          <div class="ft-h">Shop</div>
+          <ul class="ft-links">
+            <li><a href="/catalog/">Catalog</a></li>
+            <li><a href="/cart/">Cart &amp; Checkout</a></li>
+            <li><a href="/catalog/">Tech Specs</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="ft-h">Company</div>
+          <ul class="ft-links">
+            <li><a href="/contact/">Contact</a></li>
+            <li><a href="/contact/">Bulk Orders</a></li>
+            <li><a href="/login/">My Account</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="ft-h">Legal</div>
+          <ul class="ft-links">
+            <li><a href="/privacy/">Privacy Policy</a></li>
+            <li><a href="/terms/">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="ft-bot">
+        <span class="ft-copy">&copy; 2026 Shake &amp; Burp. All Rights Reserved.</span>
+        <div class="ft-sys">
+          <span><span class="sys-d"></span>POSTGRES</span>
+          <span><span class="sys-d"></span>REDIS</span>
+          <span><span class="sys-d"></span>CELERY</span>
+          <span>v1.0.0</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+  {% endif %}
+
+<div id="global-gradual-blur"></div>
+
+<!-- React Backgrounds Bundle Script -->
+<script src="{% static 'js/react-backgrounds.umd.js' %}?v=1.0.4"></script>
+<script>
+ReactBackgrounds.renderGradualBlur("global-gradual-blur", {
+  target: "page",
+  position: "bottom",
+  height: "8rem",
+  strength: 3,
+  divCount: 7,
+  exponential: true,
+  curve: "bezier"
+});
+</script>
+
+{% block page_shader %}{% endblock %}
+</body>
+</html>

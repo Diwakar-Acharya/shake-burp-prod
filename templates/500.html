@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}500 &mdash; Server Error{% endblock %}
+{% block extra_css %}
+<style>
+  .err-wrap{min-height:85vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px}
+  .err-title-container{margin-bottom:24px;display:flex;flex-direction:column;align-items:center}
+  .err-sub{font-size:16px;color:var(--steel);margin-bottom:36px;max-width:440px;line-height:1.7}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+  <div class="ctn">
+    <div class="err-wrap">
+      <div class="err-title-container">
+        <div id="fuzzy-500"></div>
+        <div id="fuzzy-server-error" style="margin-top:10px"></div>
+      </div>
+      <p class="err-sub">Something went wrong on our end. Our team has been notified. Please try again in a moment.</p>
+      <a href="/" class="btn btn-p" style="padding:14px 32px">Return Home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block page_shader %}
+<script>
+ReactBackgrounds.renderFuzzyText("fuzzy-500", {
+  children: "500",
+  color: "#D10000",
+  fontSize: "clamp(4rem, 12vw, 8rem)",
+  fontWeight: 900,
+  enableHover: true,
+  baseIntensity: 0.25,
+  hoverIntensity: 0.77,
+  fuzzRange: 35
+});
+ReactBackgrounds.renderFuzzyText("fuzzy-server-error", {
+  children: "server error",
+  color: "#D10000",
+  fontSize: "clamp(1.5rem, 5vw, 3rem)",
+  fontWeight: 700,
+  enableHover: true,
+  baseIntensity: 0.2,
+  hoverIntensity: 0.6,
+  fuzzRange: 15
+});
+ReactBackgrounds.renderDither("react-bg", {
+  waveColor: [0.5137254901960784, 0.0, 0.0],
+  disableAnimation: false,
+  enableMouseInteraction: true,
+  mouseRadius: 0.8,
+  colorNum: 6,
+  pixelSize: 1,
+  waveAmplitude: 0.4,
+  waveFrequency: 3,
+  waveSpeed: 0.45
+});
+</script>
+{% endblock %}

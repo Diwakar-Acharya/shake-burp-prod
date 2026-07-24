@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Contact &mdash; Shake &amp; Burp{% endblock %}
+{% block extra_css %}
+<style>
+  .contact-wrap{padding:100px 0}
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+  @media(max-width:900px){.contact-grid{grid-template-columns:1fr;gap:40px}}
+  .contact-h{font-size:clamp(36px,5vw,56px);color:var(--white);margin:12px 0 18px}
+  .contact-p{font-size:15px;color:var(--steel);line-height:1.75;margin-bottom:36px;max-width:420px}
+  .info-cards{display:flex;flex-direction:column;gap:14px}
+  .info-card{display:flex;align-items:center;gap:16px;padding:20px 24px;border-radius:16px;transition:border-color 0.3s}
+  .info-card:hover{border-color:var(--border-r)}
+  .info-icon{width:44px;height:44px;border-radius:12px;background:rgba(209,0,0,0.12);border:1px solid rgba(209,0,0,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--red);font-size:18px}
+  .info-label{font-family:var(--ff-m);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--steel);margin-bottom:4px}
+  .info-val{font-family:var(--ff-d);font-size:15px;color:var(--white)}
+  .contact-form{border-radius:28px;padding:40px}
+  .field{margin-bottom:18px}
+  .field label{display:block;font-family:var(--ff-m);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--steel);margin-bottom:7px}
+  .field input,.field textarea,.field select{width:100%;padding:13px 16px;border-radius:14px;background:var(--bg);border:1px solid var(--border);color:var(--white);font-family:var(--ff-b);font-size:14px;outline:none;transition:border-color 0.3s;resize:none}
+  .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--border-r);box-shadow:0 0 18px rgba(209,0,0,0.12)}
+  .field input::placeholder,.field textarea::placeholder{color:rgba(184,184,184,0.35)}
+  .field select{appearance:none;cursor:pointer}
+  .field select option{background:var(--bg);color:var(--white)}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:500px){.form-row{grid-template-columns:1fr}}
+  .form-btn{width:100%;justify-content:center;margin-top:24px;padding:16px}
+  .rv{opacity:0;transform:translateY(28px);transition:opacity 0.8s var(--ease),transform 0.8s var(--ease)}
+  .rv.show{opacity:1;transform:translateY(0)}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+  <div class="ctn">
+    <div class="contact-wrap">
+      <div class="contact-grid">
+        <!-- Left -->
+        <div class="rv">
+          <p class="t-label">// Get In Touch</p>
+          <h1 class="t-s contact-h">Let&rsquo;s Build<br>Something Bold</h1>
+          <p class="contact-p">Whether you need bulk corporate bottles, custom athlete merch, or have a question about our tech &mdash; we respond within 24 hours.</p>
+          <div class="info-cards">
+            <div class="glass info-card">
+              <div class="info-icon">&#9993;</div>
+              <div><div class="info-label">Email</div><div class="info-val">hello@shakeandburp.com</div></div>
+            </div>
+            <div class="glass info-card">
+              <div class="info-icon">&#9742;</div>
+              <div><div class="info-label">Phone</div><div class="info-val">+91 98765 43210</div></div>
+            </div>
+            <div class="glass info-card">
+              <div class="info-icon">&#9992;</div>
+              <div><div class="info-label">Bulk Orders</div><div class="info-val">Min 20 units &bull; Tiered B2B Discounts</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <div class="glass contact-form rv">
+          <h2 style="font-family:var(--ff-d);font-size:22px;font-weight:700;color:var(--white);margin-bottom:24px">Send a Message</h2>
+          <form onsubmit="event.preventDefault();alert('Message received! We will respond within 24 hours.')">
+            <div class="form-row">
+              <div class="field"><label>First Name</label><input type="text" placeholder="John" required></div>
+              <div class="field"><label>Last Name</label><input type="text" placeholder="Doe"></div>
+            </div>
+            <div class="field"><label>Email</label><input type="email" placeholder="you@company.com" required></div>
+            <div class="field"><label>Subject</label>
+              <select required>
+                <option value="">Select a topic...</option>
+                <option>General Inquiry</option>
+                <option>Bulk / Corporate Order</option>
+                <option>Custom Artwork</option>
+                <option>Shipping &amp; Returns</option>
+                <option>Partnership</option>
+              </select>
+            </div>
+            <div class="field"><label>Message</label><textarea rows="5" placeholder="Tell us about your project..." required></textarea></div>
+            <button type="submit" class="btn btn-p form-btn">Send Message<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg></button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block page_shader %}
+<script>
+ReactBackgrounds.renderLightRays("react-bg", {
+  raysOrigin: "top-center",
+  raysColor: "#dd0000",
+  raysSpeed: 2.4,
+  lightSpread: 2.1,
+  rayLength: 3.3,
+  pulsating: false,
+  fadeDistance: 0.9,
+  saturation: 1.5,
+  followMouse: true,
+  mouseInfluence: 0.25,
+  noiseAmount: 0.0,
+  distortion: 0.0
+});
+setTimeout(()=>{document.querySelectorAll('.rv').forEach(el=>el.classList.add('show'))},100);
+</script>
+{% endblock %}
