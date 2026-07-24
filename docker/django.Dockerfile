@@ -34,8 +34,9 @@ COPY . .
 # Ensure staticfiles and media directories exist for Gunicorn
 RUN mkdir -p /app/staticfiles /app/media
 
-# Create non-root user
-RUN addgroup --system django && adduser --system --group django
+# Create non-root user with home directory /app
+RUN addgroup --system django && adduser --system --ingroup django --home /app django
+ENV HOME=/app
 RUN chown -R django:django /app
 
 USER django
