@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Successful — Shake &amp; Burp{% endblock %}
+
+{% block content %}
+<div class="ctn" style="padding:120px 24px 80px; text-align:center; max-width:600px; margin:0 auto;">
+  <div style="width:80px; height:80px; border-radius:50%; background:rgba(0,200,83,0.1); border:1px solid rgba(0,200,83,0.3); display:inline-flex; align-items:center; justify-content:center; margin-bottom:24px;">
+    <svg style="width:40px; height:40px; stroke:#00C853; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;" viewBox="0 0 24 24">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+    </svg>
+  </div>
+  <h1 style="font-family:var(--ff-d); font-size:36px; font-weight:700; color:var(--white); margin-bottom:16px;">Payment Successful!</h1>
+  <p style="color:var(--steel); font-size:15px; line-height:1.6; margin-bottom:32px;">
+    Thank you for your purchase. Your order has been placed and sent to Shiprocket for fulfillment. You will receive tracking updates shortly.
+  </p>
+  <a href="{% url 'catalog' %}" style="display:inline-block; padding:14px 32px; background:var(--red); color:var(--white); font-family:var(--ff-m); font-weight:700; border-radius:10px; text-transform:uppercase; letter-spacing:0.05em;">Continue Shopping</a>
+</div>
+{% endblock %}

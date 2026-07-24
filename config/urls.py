@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import render, redirect, get_object_or_404
@@ -13,6 +13,12 @@ from apps.accounts.views import (
     logout_view,
     profile_view,
     change_password_view,
+)
+from apps.payments.views import (
+    initiate_checkout_view,
+    payment_success_view,
+    payment_cancel_view,
+    stripe_webhook_view,
 )
 from apps.products.models import Product
 
@@ -84,6 +90,58 @@ def add_to_cart_view(request):
     return redirect("cart")
 
 
+@login_required
+@require_POST
+def create_order_and_checkout_view(request):
+    cart = request.session.get("cart", {})
+    if not cart:
+        return redirect("cart")
+
+    total_amount = 0
+    items_to_create = []
+
+    for slug, qty in cart.items():
+        try:
+            p_obj = Product.objects.get(slug=slug, is_active=True)
+            line_total = p_obj.price * qty
+            total_amount += line_total
+            items_to_create.append((p_obj, qty, p_obj.price))
+        except Product.DoesNotExist:
+            continue
+
+    if not items_to_create:
+        return redirect("cart")
+
+    from apps.orders.models import Order, OrderItem
+    user = request.user
+    order = Order.objects.create(
+        user=user,
+        email=user.email or "customer@example.com",
+        first_name=user.first_name or user.username,
+        last_name=user.last_name or "",
+        address="123 Main Street",
+        city="Mumbai",
+        postal_code="400001",
+        country="India",
+        total_amount=total_amount,
+        status="pending"
+    )
+
+    for p_obj, qty, price in items_to_create:
+        OrderItem.objects.create(
+            order=order,
+            product=p_obj,
+            product_name=p_obj.name,
+            price=price,
+            quantity=qty
+        )
+
+    # Clear session cart
+    request.session["cart"] = {}
+
+    return redirect("initiate_checkout", order_id=order.id)
+
+
 @require_POST
 def remove_from_cart_view(request, slug):
     cart = request.session.get("cart", {})
@@ -130,7 +188,7 @@ def terms_view(request):
 # ── URL Patterns ───────────────────────────────────────────────────────────────
 
 urlpatterns = [
-    # !! Secret admin path — do NOT share publicly !!
+    path("admin/", admin.site.urls),
     path(f"{ADMIN_SECRET_PATH}/", admin.site.urls),
 
     # Pages
@@ -148,12 +206,20 @@ urlpatterns = [
     path("cart/clear/", clear_cart_view, name="clear_cart"),
     path("cart/update/<slug:slug>/", update_cart_qty_view, name="update_cart_qty"),
 
-    # Auth
+    # Auth & OAuth
     path("login/", login_view, name="login"),
     path("register/", register_view, name="register"),
     path("logout/", logout_view, name="logout"),
     path("profile/", profile_view, name="profile"),
     path("profile/password/", change_password_view, name="change_password"),
+    path("accounts/", include("allauth.urls")),
+
+    # Stripe Payments & Webhooks
+    path("checkout/create/", create_order_and_checkout_view, name="create_order_and_checkout"),
+    path("checkout/stripe/<int:order_id>/", initiate_checkout_view, name="initiate_checkout"),
+    path("checkout/success/", payment_success_view, name="payment_success"),
+    path("checkout/cancel/", payment_cancel_view, name="payment_cancel"),
+    path("payments/webhook/stripe/", stripe_webhook_view, name="stripe_webhook"),
 ]
 
 

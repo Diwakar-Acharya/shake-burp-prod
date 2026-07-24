@@ -119,10 +119,13 @@
           <div class="summary-row"><span>Tax (est.)</span><span style="color:var(--steel)">Calculated at checkout</span></div>
           <div class="summary-total"><span>Total</span><span>${{ subtotal }}</span></div>
           {% if request.user.is_authenticated %}
-          <button class="btn btn-p checkout-btn" onclick="alert('Stripe / Razorpay checkout integration — Phase 2!')">
-            Proceed to Checkout
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-          </button>
+          <form action="{% url 'create_order_and_checkout' %}" method="POST" style="margin:0;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-p checkout-btn">
+              Proceed to Stripe Checkout
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+          </form>
           {% else %}
           <a href="/login/?next=/cart/" class="btn btn-p checkout-btn" style="display:flex">
             Sign In to Checkout

@@ -46,6 +46,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
+    # Third-Party Apps
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     # Local Apps
     "apps.accounts",
     "apps.products",
@@ -67,6 +73,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -215,3 +222,38 @@ if not DEBUG:
     SESSION_COOKIE_HTTPONLY = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_BROWSER_XSS_FILTER = True
+
+# ── Google OAuth & Authentication Backends ──────────────────────────────────
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+SITE_ID = 1
+ACCOUNT_EMAIL_VERIFICATION = "none"
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APPS": [
+            {
+                "client_id": env("GOOGLE_CLIENT_ID", default=""),
+                "secret": env("GOOGLE_CLIENT_SECRET", default=""),
+                "key": "",
+            },
+        ],
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
+    }
+}
+
+# ── Stripe Payment Gateway Settings ──────────────────────────────────────────
+STRIPE_PUBLIC_KEY = env("STRIPE_PUBLIC_KEY", default="")
+STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="")
+STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
+
+# ── Shiprocket Logistics API Settings ───────────────────────────────────────
+SHIPROCKET_EMAIL = env("SHIPROCKET_EMAIL", default="")
+SHIPROCKET_PASSWORD = env("SHIPROCKET_PASSWORD", default="")
+
+# ── AWS Lambda Email Verification Settings ───────────────────────────────────
+AWS_LAMBDA_EMAIL_FUNCTION = env("AWS_LAMBDA_EMAIL_FUNCTION", default="SendVerificationEmail")
+AWS_SES_SENDER_EMAIL = env("AWS_SES_SENDER_EMAIL", default="noreply@shakeandburp.com")
+
