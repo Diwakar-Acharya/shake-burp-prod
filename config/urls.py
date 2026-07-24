@@ -90,7 +90,6 @@ def add_to_cart_view(request):
     return redirect("cart")
 
 
-@login_required
 @require_POST
 def create_order_and_checkout_view(request):
     cart = request.session.get("cart", {})
@@ -113,12 +112,16 @@ def create_order_and_checkout_view(request):
         return redirect("cart")
 
     from apps.orders.models import Order, OrderItem
-    user = request.user
+    user = request.user if request.user.is_authenticated else None
+    email = user.email if (user and user.email) else "customer@shakeandburp.com"
+    first_name = user.first_name if (user and user.first_name) else (user.username if user else "Guest")
+    last_name = user.last_name if (user and user.last_name) else "Customer"
+
     order = Order.objects.create(
         user=user,
-        email=user.email or "customer@example.com",
-        first_name=user.first_name or user.username,
-        last_name=user.last_name or "",
+        email=email,
+        first_name=first_name,
+        last_name=last_name,
         address="123 Main Street",
         city="Mumbai",
         postal_code="400001",
