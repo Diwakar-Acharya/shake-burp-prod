@@ -139,6 +139,7 @@ if USE_S3:
     AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="eu-north-1")
     AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
     AWS_DEFAULT_ACL = None
+    AWS_QUERYSTRING_AUTH = False
     
     STORAGES = {
         "default": {
